@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Subscriber;
 use App\Models\TariffUsage;
 
 class TariffUsageRepository
@@ -16,6 +17,12 @@ class TariffUsageRepository
             'minutes_used' => 0,
             'status' => 'active'
         ]);
+    }
+
+    // Присваивает тариф абоненту
+    public function assignTariff(Subscriber $subscriber, string $tariffName): TariffUsage
+    {
+        return $this->create($subscriber->id, $tariffName);
     }
 
     // Обновляет использование тарифа (трафик и минуты)

@@ -2,24 +2,52 @@
 
 namespace App\Services;
 
+use App\Repositories\SubscriberRepository;
 use App\Repositories\TariffUsageRepository;
 use App\Models\Subscriber;
-use App\DTO\TariffUsageDTO;
+use App\DTO\TariffDTO;
 
 class BillingService
 {
-    public function __construct(private TariffUsageRepository $repo){}
+    public function __construct(
+        private SubscriberRepository $subscriberRepo,
+        private TariffUsageRepository $tariffRepo
+    ) {}
 
-    public function assignTariff(Subscriber $subscriber, string $tariffName): TariffUsageDTO
+    /**
+     * Создаёт нового абонента для пользователя
+     */
+    public function createSubscriber($user): Subscriber
     {
-        $tariff = $this->repo->create($subscriber->id, $tariffName);
-        return new TariffUsageDTO($tariff->id, $tariff->subscriber_id, $tariff->tariff_name, $tariff->data_used, $tariff->minutes_used, $tariff->status);
+        return $this->subscriberRepo->create([
+            'user_id' => $user->id,
+            'current_operator' => null
+        ]);
     }
 
-    public function updateUsage(Subscriber $subscriber, int $dataUsed, int $minutesUsed): TariffUsageDTO
+    /**
+     * Назначает тариф абоненту по ID
+     */
+    public function assignTariffById(int $subscriberId, string $tariffName): TariffDTO
     {
-        $tariff = $this->repo->getLatestBySubscriber($subscriber->id);
-        $tariff = $this->repo->updateUsage($tariff, $dataUsed, $minutesUsed);
-        return new TariffUsageDTO($tariff->id, $tariff->subscriber_id, $tariff->tariff_name, $tariff->data_used, $tariff->minutes_used, $tariff->status);
+        $subscriber = $this->subscriberRepo->findById($subscriberId);
+
+        return $this->assignTariff($subscriber, $tariffName);
+    }
+
+    /**
+     * Назначает тариф абоненту
+     */
+    public function assignTariff(Subscriber $subscriber, string $tariffName): TariffDTO
+    {
+        $usage = $this->tariffRepo->assignTariff($subscriber, $tariffName);
+
+        return new TariffDTO(
+            subscriberId: $subscriber->id,
+            tariffName: $usage->tariff_name,
+            dataUsed: $usage->data_used,
+            minutesUsed: $usage->minutes_used,
+            status: $usage->status
+        );
     }
 }
