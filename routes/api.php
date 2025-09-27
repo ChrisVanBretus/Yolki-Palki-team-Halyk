@@ -4,9 +4,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EsimController;
 use App\Http\Controllers\QosController;
 use App\Http\Controllers\SubscriberController;
+use App\Http\Controllers\Api\RecommendationController;
 
 Route::middleware(['auth.api'])->group(function () {
-    
+
+    Route::prefix('recommendations')->group(function () {
+        Route::get('/', [RecommendationController::class, 'index']);
+    });
+
     Route::prefix('esim')->group(function () {
         Route::post('/request-profile', [EsimController::class, 'requestProfile']);
         
