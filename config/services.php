@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    'sendpulse' => [
+        'client_id' => env('SENDPULSE_CLIENT_ID'),
+        'client_secret' => env('SENDPULSE_CLIENT_SECRET'),
+        'token_path' => env('SENDPULSE_TOKEN_PATH', storage_path('sendpulse')),
+    ],
+
+    'recommendation' => [
+        'endpoint' => env('RECOMMENDATION_ENDPOINT'),
+        'api_key' => env('RECOMMENDATION_API_KEY'),
+        'cache_ttl_minutes' => 30, // кэш рекомендаций
+    ],
+
+    'api_token' => env('API_TOKEN'), // простой API-токен для мобильного приложения
+
 ];
